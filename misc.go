@@ -29,8 +29,9 @@ type CjdnsAdmin struct {
 	Config   string `json:"config,omitempty"`
 }
 
-// gotYes will read from stdin and if it is any variation of 'y' or 'yes' then it returns true
-// If defaultYes is set to true and the user presses enter without entering anything else it returns true
+// gotYes will read from stdin and if it is any variation of 'y' or
+// 'yes' then it returns true If defaultYes is set to true and the
+// user presses enter without entering anything else it returns true
 func gotYes(defaultYes bool) bool {
 	var choice string
 	n, _ := fmt.Scanln(&choice)
@@ -67,7 +68,7 @@ func readCjdnsadmin(file string) (admin *CjdnsAdmin, err error) {
 		// BUG(inhies): Find a better way of dealing with these errors.
 		if e, ok := err.(*json.SyntaxError); ok {
 			// BUG(inhies): Instead of printing x amount of characters, print the previous and following 2 lines
-			fmt.Println("Invalid JSON") //" at byte", e.Offset, "(after stripping comments...)")
+			fmt.Println("Invalid JSON") // " at byte", e.Offset, "(after stripping comments...)")
 			fmt.Println("----------------------------------------")
 			fmt.Println(string(raw[e.Offset-60 : e.Offset+60]))
 			fmt.Println("----------------------------------------")
@@ -95,8 +96,8 @@ func readCjdnsadmin(file string) (admin *CjdnsAdmin, err error) {
 
 }
 
-// Reads the configuration file specified in global variable File
-// and sets the admin credentials
+// readConfig reads the configuration file specified in global
+// variable File and sets the admin credentials.
 func readConfig() (conf *config.Config, err error) {
 	conf, err = config.LoadMinConfig(File)
 	if err != nil || len(conf.Admin.Password) == 0 {
@@ -109,7 +110,13 @@ func readConfig() (conf *config.Config, err error) {
 	return
 }
 
-// Attempt to connect to cjdns 
+// adminConnect attempts to connect to cjdns, and returns an error if
+// the connection fails. It first tries to use credentials set in the
+// global variables AdminBind and AdminPassword. If those aren't
+// available, it tries to read from the file specified in File. If
+// that isn't available, it attempts to invoke loadCjdnsadmin()
+// (reading from '~/.cjdnsadmin') instead. If this fails, it returns
+// an error.
 func adminConnect() (user *admin.Admin, err error) {
 	// If nothing else has already set this
 	if AdminBind == "" || AdminPassword == "" {
@@ -163,7 +170,9 @@ func adminConnect() (user *admin.Admin, err error) {
 	return
 }
 
-// Attempt to read the .cjdnsadmin file from the users home directory
+// loadCjdnsadmin attempts to read the .cjdnsadmin file from the
+// user's home directory. If the file can't be opened, or otherwise
+// fails, it returns an error.
 func loadCjdnsadmin() (cjdnsAdmin *CjdnsAdmin, err error) {
 	tUser, err := user.Current()
 	if err != nil {
@@ -176,9 +185,8 @@ func loadCjdnsadmin() (cjdnsAdmin *CjdnsAdmin, err error) {
 	return
 }
 
-// Fills out an IPv6 address to the full 32 bytes
-// This shouldn't be needed in newer versions of cjdns
-
+// padIPv6 fills an abbreviated IPv6 address to the full 32 bytes. It
+// is obsolete for newer versions of cjdns.
 func padIPv6(ip net.IP) string {
 	raw := hex.EncodeToString(ip)
 	parts := make([]string, len(raw)/4)
@@ -188,7 +196,8 @@ func padIPv6(ip net.IP) string {
 	return strings.Join(parts, ":")
 }
 
-// Dumps the entire routing table and structures it
+// getTable retrieves the entire routing table from the admin
+// interface and decodes it to a usable structure.
 func getTable(user *admin.Admin) (table []*Route) {
 	page := 0
 	var more int64
@@ -207,7 +216,7 @@ func getTable(user *admin.Admin) (table []*Route) {
 				return
 			}
 		}
-		//Thanks again to SashaCrofter for the table parsing
+		// Thanks again to SashaCrofter for the table parsing
 		rawTable := response["routingTable"].([]interface{})
 		for i := range rawTable {
 			item := rawTable[i].(map[string]interface{})
@@ -215,10 +224,8 @@ func getTable(user *admin.Admin) (table []*Route) {
 			sPath := strings.Replace(rPath, ".", "", -1)
 			bPath, err := hex.DecodeString(sPath)
 			if err != nil || len(bPath) != 8 {
-				//If we get an error, or the
-				//path is not 64 bits, discard.
-				//This should also prevent
-				//runtime errors.
+				// If we get an error, or the path is not 64 bits,
+				// discard. This should also prevent runtime errors.
 				continue
 			}
 			path := binary.BigEndian.Uint64(bPath)
@@ -307,6 +314,7 @@ func setTarget(data []string, usePath bool) (target Target, err error) {
 	return
 }
 
+// usage prints the entire cjdcmd usage statement to stderr.
 func usage() {
 	println("cjdcmd version ", Version)
 	println("")
@@ -357,6 +365,7 @@ func myRand(min, max int, char string) string {
 	return string(buf)
 }
 
+// strip
 func stripComments(b []byte) ([]byte, error) {
 	regComment, err := regexp.Compile("(?s)//.*?\n|/\\*.*?\\*/")
 	if err != nil {

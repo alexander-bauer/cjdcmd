@@ -24,9 +24,9 @@ import (
 const (
 	Version = "0.5.1"
 
-	magicalLinkConstant = 5366870.0 //Determined by cjd way back in the dark ages.
+	magicalLinkConstant = 5366870.0 // Determined by cjd way back in the dark ages.
 
-	defaultPingTimeout  = 5000 //5 seconds
+	defaultPingTimeout  = 5000 // 5 seconds
 	defaultPingCount    = 0
 	defaultPingInterval = float64(1)
 
@@ -130,9 +130,9 @@ func init() {
 }
 
 func main() {
-	//Define the flags, and parse them
-	//Clearly a hack but it works for now
-	//TODO(inhies): Re-implement flag parsing so flags can have multiple meanings based on the base command (ping, route, etc)
+	// Define the flags, and parse them
+	// Clearly a hack but it works for now
+	// TODO(inhies): Re-implement flag parsing so flags can have multiple meanings based on the base command (ping, route, etc)
 	if len(os.Args) <= 1 {
 		usage()
 		return
@@ -145,15 +145,15 @@ func main() {
 		fs.Parse(os.Args[2:])
 	}
 
-	//TODO(inhies): check argv[0] for trailing commands.
-	//For example, to run ctraceroute:
-	//ln -s /path/to/cjdcmd /usr/bin/ctraceroute like things
+	// TODO(inhies): check argv[0] for trailing commands.
+	// For example, to run ctraceroute:
+	// ln -s /path/to/cjdcmd /usr/bin/ctraceroute like things
 	command := os.Args[1]
 
 	arguments := fs.Args()
 	data := arguments[fs.NFlag()-fs.NFlag():]
 
-	//Setup variables now so that if the program is killed we can still finish what we're doing
+	// Setup variables now so that if the program is killed we can still finish what we're doing
 	ping := &Ping{}
 
 	globalData := &Data{&admin.Admin{}, ""}
@@ -187,7 +187,7 @@ func main() {
 				}
 			}
 			if command == "ping" {
-				//stop pinging and print results
+				// stop pinging and print results
 				outputPing(ping)
 			}
 			// Close all the channels
@@ -574,7 +574,7 @@ func main() {
 		peers := make([]*Route, 0)
 		table := getTable(globalData.User)
 		sort.Sort(ByQuality{table})
-		//fmt.Println("Finding all connected peers")
+		// fmt.Println("Finding all connected peers")
 
 		for i := range table {
 
@@ -622,7 +622,7 @@ func main() {
 			fmt.Printf("IP: %v -- Path: %s -- Link: %.0f\n", tText, p.Path, p.Link)
 			count++
 		}
-		//println("Connected to", count, "peers")
+		// println("Connected to", count, "peers")
 	case versionCmd:
 		// TODO(inhies): Ping a specific node and return it's cjdns version, or
 		// ping all nodes in the routing table and get their versions
@@ -642,7 +642,7 @@ func main() {
 		}
 		alive := true
 		for ; alive; alive, _ = admin.SendPing(globalData.User, 1000) {
-			runtime.Gosched() //play nice
+			runtime.Gosched() // play nice
 		}
 		println("cjdns is shutting down...")
 

@@ -16,7 +16,7 @@ type ByPath struct{ Routes }
 
 func (s ByPath) Less(i, j int) bool { return s.Routes[i].RawPath < s.Routes[j].RawPath }
 
-//Sorts with highest quality link at the top
+// Sorts with highest quality link at the top
 type ByQuality struct{ Routes }
 
 func (s ByQuality) Less(i, j int) bool { return s.Routes[i].RawLink > s.Routes[j].RawLink }
@@ -37,7 +37,7 @@ func doTraceroute(user *admin.Admin, target Target) {
 	} else if validPath(target.Supplied) {
 		usingPath = true
 		tText = target.Supplied
-		//table := getTable(globalData.User)
+		// table := getTable(globalData.User)
 		for _, v := range table {
 			if v.Path == target.Supplied {
 				// We have the IP now

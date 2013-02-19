@@ -22,7 +22,7 @@ func lookupHypeDNS(hostname string) (response string, err error) {
 
 	// Stuff must be in the answer section
 	for _, a := range r.Answer {
-		columns := strings.Fields(a.String()) //column 4 holds the ip address
+		columns := strings.Fields(a.String()) // column 4 holds the ip address
 		return padIPv6(net.ParseIP(columns[4])), nil
 	}
 	return
@@ -48,7 +48,7 @@ func reverseHypeDNSLookup(ip string) (response string, err error) {
 
 	// Stuff must be in the answer section
 	for _, a := range r.Answer {
-		columns := strings.Fields(a.String()) //column 4 holds the ip address
+		columns := strings.Fields(a.String()) // column 4 holds the ip address
 		return columns[4], nil
 	}
 	return
